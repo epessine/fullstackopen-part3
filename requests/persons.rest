@@ -11,8 +11,9 @@ POST http://localhost:3000/api/persons/ HTTP/1.1
 content-type: application/json
 
 {
-    "key": "value"
+    "name": "name",
+    "number": "number"
 }
 
 ###
-DELETE http://localhost:3000/api/persons/1/
+DELETE http://localhost:3000/api/persons/5/
