@@ -8,7 +8,7 @@ const Person = require('./models/Person');
 app.use(express.json());
 app.use(express.static('build'));
 
-app.get('/info', (req, res) => {
+app.get('/info', (req, res, next) => {
   Person.find({})
     .then(persons => {
       res.send(`
@@ -16,16 +16,16 @@ app.get('/info', (req, res) => {
         <p> ${String(Date())} </p>
       `)
     })
-    .catch(e => console.log('error retrieving data:', e))
+    .catch(e => next(e))
 });
 
-app.get('/api/persons', (req, res) => {
+app.get('/api/persons', (req, res, next) => {
   Person.find({})
     .then(persons => res.json(persons))
-    .catch(e => console.log('error retrieving data:', e))
+    .catch(e => next(e))
 });
 
-app.get('/api/persons/:id', (req, res) => {
+app.get('/api/persons/:id', (req, res, next) => {
   //const id = Number(req.params.id);
   //const person = persons.find(person => person.id === id);
   
@@ -34,15 +34,15 @@ app.get('/api/persons/:id', (req, res) => {
   //  : res.status(404).end();
 });
 
-app.delete('/api/persons/:id', (req, res) => {
+app.delete('/api/persons/:id', (req, res, next) => {
   Person.findByIdAndRemove(req.params.id)
     .then(updatedNote => {
       res.json(updatedNote)
     })
-    .catch(e => console.log('error retrieving data:', e))
+    .catch(e => next(e))
 });
 
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
   const body = req.body;
 
   if (!body.name || !body.number) {
@@ -66,8 +66,20 @@ app.post('/api/persons', (req, res) => {
     .then(returnedPerson => {
       res.json(returnedPerson)
     })
-    .catch(e => console.log('error saving data:', e))
+    .catch(e => next(e))
 });
+
+const errorHandler = (e, req, res, next) => {
+  console.error(e.message);
+
+  if (e.name === 'CastError') {
+    return res.status(400).send({ error: 'malformatted id' })
+  }
+
+  next(error)
+}
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
