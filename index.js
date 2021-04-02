@@ -35,10 +35,11 @@ app.get('/api/persons/:id', (req, res) => {
 });
 
 app.delete('/api/persons/:id', (req, res) => {
-  //const id = Number(req.params.id);
-  //persons = persons.filter(person => person.id !== id);
-  //
-  //res.status(204).end();
+  Person.findByIdAndRemove(req.params.id)
+    .then(updatedNote => {
+      res.json(updatedNote)
+    })
+    .catch(e => console.log('error retrieving data:', e))
 });
 
 app.post('/api/persons', (req, res) => {
