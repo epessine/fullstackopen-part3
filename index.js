@@ -1,73 +1,44 @@
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
 const express = require('express');
 const app = express();
-//const morgan = require('morgan');
+const Person = require('./models/Person');
 
 app.use(express.json());
-//app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'));
 app.use(express.static('build'));
 
-//morgan.token('body', function (req, res) {
-//  if (req.method === 'POST') {
-//    return JSON.stringify(req.body)
-//  }
-//  return null
-//});
-
-let persons = [
-  {
-    name: "Arto Hellas",
-    number: "040-123456",
-    id: 1
-  },
-  {
-    name: "Ada Lovelace",
-    number: "39-44-5323523",
-    id: 2
-  },
-  {
-    name: "Dan Abramov",
-    number: "12-43-234345",
-    id: 3
-  },
-  {
-    name: "Mary Poppendieck",
-    number: "39-23-6423122",
-    id: 4
-  }
-];
-
-const generateId = () => {
-  const maxId = persons.length > 0
-    ? Math.max(...persons.map(p => p.id))
-    : 0
-  return maxId + 1
-}
-
 app.get('/info', (req, res) => {
-  res.send(`
-    <p>Phonebook has info for ${persons.length} people </p>
-    <p> ${String(Date())} </p>
-  `)
+  Person.find({})
+    .then(persons => {
+      res.send(`
+        <p>Phonebook has info for ${persons.length} people </p>
+        <p> ${String(Date())} </p>
+      `)
+    })
+    .catch(e => console.log('error retrieving data:', e))
 });
 
 app.get('/api/persons', (req, res) => {
-  res.json(persons)
+  Person.find({})
+    .then(persons => res.json(persons))
+    .catch(e => console.log('error retrieving data:', e))
 });
 
 app.get('/api/persons/:id', (req, res) => {
-  const id = Number(req.params.id);
-  const person = persons.find(person => person.id === id);
+  //const id = Number(req.params.id);
+  //const person = persons.find(person => person.id === id);
   
-  person
-    ? res.json(person)
-    : res.status(404).end();
+  //person
+  //  ? res.json(person)
+  //  : res.status(404).end();
 });
 
 app.delete('/api/persons/:id', (req, res) => {
-  const id = Number(req.params.id);
-  persons = persons.filter(person => person.id !== id);
-  
-  res.status(204).end();
+  //const id = Number(req.params.id);
+  //persons = persons.filter(person => person.id !== id);
+  //
+  //res.status(204).end();
 });
 
 app.post('/api/persons', (req, res) => {
@@ -79,24 +50,25 @@ app.post('/api/persons', (req, res) => {
     })
   }
 
-  if (persons.find(p => p.name === body.name)) {
-    return res.status(400).json({
-      error: 'name must be unique'
-    })
-  }
+  //if (persons.find(p => p.name === body.name)) {
+  //  return res.status(400).json({
+  //    error: 'name must be unique'
+  //  })
+  //}
 
-  const person = {
+  const person = new Person({
     name: body.name,
-    number: body.number,
-    id: generateId(),
-  };
+    number: body.number
+  });
 
-  persons = persons.concat(person);
-  
-  res.json(person);
-})
+  person.save()
+    .then(returnedPerson => {
+      res.json(returnedPerson)
+    })
+    .catch(e => console.log('error saving data:', e))
+});
 
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 });
