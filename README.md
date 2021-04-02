@@ -3,7 +3,7 @@
 This is my repository for the course part 3 exercises.
 <br/>
 <br/>
-
+Deployed app: <https://rhubarb-cupcake-62235.herokuapp.com/>
 #
 
 <https://fullstackopen.com/>
