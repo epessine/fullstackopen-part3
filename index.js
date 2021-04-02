@@ -4,6 +4,7 @@ const morgan = require('morgan');
 
 app.use(express.json());
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'));
+app.use(express.static('build'));
 
 morgan.token('body', function (req, res) {
   if (req.method === 'POST') {
@@ -95,7 +96,7 @@ app.post('/api/persons', (req, res) => {
   res.json(person);
 })
 
-const PORT = 3000
+const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 });
