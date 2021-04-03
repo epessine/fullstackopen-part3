@@ -12,35 +12,42 @@ const number = process.argv[3];
 
 const url = `mongodb+srv://${user}:${password}@cluster0.pl1hz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 
-mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true })
-  .then(res => console.log('Success!'))
-  .catch(e => console.log('error:',e));
+mongoose
+  .connect(url, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useFindAndModify: false,
+    useCreateIndex: true,
+  })
+  .then(() => console.log('Success!'))
+  .catch((e) => console.log('error:', e));
 
 const personSchema = new mongoose.Schema({
   name: String,
-  number: String
+  number: String,
 });
 
 const Person = mongoose.model('Person', personSchema);
 
-if(process.argv.length === 2) {
+if (process.argv.length === 2) {
   Person.find({})
-    .then(persons => {
+    .then((persons) => {
       console.log('phonebook:');
-      persons.forEach(person => console.log(person.name, person.number));
-      mongoose.connection.close()
+      persons.forEach((person) => console.log(person.name, person.number));
+      mongoose.connection.close();
     })
-    .catch(e => console.log('error:',e))
+    .catch((e) => console.log('error:', e));
 } else if (process.argv.length === 4) {
   const person = new Person({
     name: name,
-    number: number
+    number: number,
   });
-  
-  person.save()
-    .then(res => {
-    console.log(`added ${name} number ${number} to phonebook`)
-    mongoose.connection.close()
+
+  person
+    .save()
+    .then(() => {
+      console.log(`added ${name} number ${number} to phonebook`);
+      mongoose.connection.close();
     })
-    .catch(e => console.log('error:',e));
+    .catch((e) => console.log('error:', e));
 }
