@@ -3,6 +3,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 const express = require('express');
 const app = express();
+const axios = require('axios');
 const Person = require('./models/Person');
 
 app.use(express.json());
@@ -26,18 +27,15 @@ app.get('/api/persons', (req, res, next) => {
 });
 
 app.get('/api/persons/:id', (req, res, next) => {
-  //const id = Number(req.params.id);
-  //const person = persons.find(person => person.id === id);
-  
-  //person
-  //  ? res.json(person)
-  //  : res.status(404).end();
+  Person.findById(req.params.id)
+    .then(person => res.json(person))
+    .catch(e => next(e))
 });
 
 app.delete('/api/persons/:id', (req, res, next) => {
   Person.findByIdAndRemove(req.params.id)
-    .then(updatedNote => {
-      res.json(updatedNote)
+    .then(updatedPerson => {
+      res.json(updatedPerson)
     })
     .catch(e => next(e))
 });
@@ -51,20 +49,44 @@ app.post('/api/persons', (req, res, next) => {
     })
   }
 
-  //if (persons.find(p => p.name === body.name)) {
-  //  return res.status(400).json({
-  //    error: 'name must be unique'
-  //  })
-  //}
-
   const person = new Person({
     name: body.name,
     number: body.number
   });
 
-  person.save()
-    .then(returnedPerson => {
-      res.json(returnedPerson)
+  Person.exists({ name: body.name })
+    .then(hasPerson => {
+      if (hasPerson) {
+        res.status(400).json({
+          error: `${body.name} already exists!`
+        })
+      } else {
+        person.save()
+          .then(returnedPerson => {
+            res.json(returnedPerson)
+          })
+          .catch(e => next(e))
+      }
+    })
+});
+
+app.put('/api/persons/:id', (req, res, next) => {
+  const body = req.body;
+
+  if (!body.name || !body.number) {
+    return res.status(400).json({
+      error: 'name or number is missing'
+    })
+  }
+
+  const person = {
+    name: body.name,
+    number: body.number
+  };
+
+  Person.findByIdAndUpdate(req.params.id, person, { new: true })
+    .then(updatedPerson => {
+      res.json(updatedPerson)
     })
     .catch(e => next(e))
 });
@@ -76,7 +98,7 @@ const errorHandler = (e, req, res, next) => {
     return res.status(400).send({ error: 'malformatted id' })
   }
 
-  next(error)
+  next(e)
 }
 
 app.use(errorHandler);

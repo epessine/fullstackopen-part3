@@ -4,7 +4,7 @@ GET http://localhost:3000/api/persons/
 GET http://localhost:3000/info/
 
 ###
-GET http://localhost:3000/api/persons/60677930a35125091839ca97/
+GET http://localhost:3000/api/persons/id/
 
 ###
 POST http://localhost:3000/api/persons/ HTTP/1.1
@@ -12,7 +12,16 @@ content-type: application/json
 
 {
     "name": "name",
-    "number": "12345-6789"
+    "number": "123456789"
+}
+
+###
+PUT http://localhost:3000/api/persons/id/ HTTP/1.1
+content-type: application/json
+
+{
+    "name": "name",
+    "number": "123456789"
 }
 
 ###
